@@ -63,3 +63,22 @@ test("ranks contestants from highest to lowest, skipping unscored", () => {
 
   expect(result.map((r) => r.id)).toEqual(["Ben", "Ana"]);
 });
+
+test("rank contestants with ties", () => {
+  const result = rankContestants(
+    criteria,
+    [
+      {
+        id: "Dee",
+        sheets: [{ talent: 6, poise: 10, qa: 5 }],
+      },
+      {
+        id: "Eve",
+        sheets: [{ talent: 8, poise: 8, qa: 4 }],
+      },
+    ],
+    "talent",
+  );
+
+  expect(result.map((r) => r.id)).toEqual(["Eve", "Dee"]);
+});

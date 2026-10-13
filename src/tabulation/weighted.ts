@@ -1,6 +1,11 @@
 export type Criterion = { id: string; weight: number; max: number };
 export type Contestant = { id: string; sheets: Record<string, number>[] }; //array of score sheets from judges
-export type Ranked = { id: string; score: number; rank: number };
+export type Ranked = {
+  id: string;
+  score: number;
+  rank: number;
+  tieBreak: number;
+};
 
 // Total score for one judge, based on the criteria and their weights
 export function judgeTotal(
@@ -34,17 +39,34 @@ export function contestantScore(
 export function rankContestants(
   criteria: Criterion[],
   contestants: Contestant[],
+  tieBreakerId?: string, //optional criterion id to break ties
 ): Ranked[] {
   const ranked: Ranked[] = [];
 
   for (const c of contestants) {
     const score = contestantScore(criteria, c.sheets);
     if (score !== null) {
-      ranked.push({ id: c.id, score: score, rank: 0 });
+      ranked.push({
+        id: c.id,
+        score: score,
+        rank: 0,
+        tieBreak: tieBreakerId ? criterionAverage(tieBreakerId, c.sheets) : 0,
+      });
     }
   }
 
-  ranked.sort((a, b) => b.score - a.score);
+  ranked.sort((a, b) => b.score - a.score || b.tieBreak - a.tieBreak);
 
   return ranked.map((item, index) => ({ ...item, rank: index + 1 }));
+}
+
+function criterionAverage(
+  criterionId: string,
+  sheets: Record<string, number>[],
+): number {
+  let total = 0;
+  for (const sheet of sheets) {
+    total += sheet[criterionId] ?? 0;
+  }
+  return total / sheets.length;
 }
