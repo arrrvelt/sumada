@@ -1,4 +1,9 @@
-import { contestantScore, Criterion, judgeTotal } from "./weighted";
+import {
+  contestantScore,
+  Criterion,
+  judgeTotal,
+  rankContestants,
+} from "./weighted";
 
 const criteria: Criterion[] = [
   { id: "talent", weight: 50, max: 10 },
@@ -41,4 +46,20 @@ test("averages the total of all judges", () => {
 
 test("returns null when no judge has scored yet", () => {
   expect(contestantScore(criteria, [])).toBeNull();
+});
+
+test("ranks contestants from highest to lowest, skipping unscored", () => {
+  const result = rankContestants(criteria, [
+    {
+      id: "Ana",
+      sheets: [
+        { talent: 8, poise: 9, qa: 4 },
+        { talent: 7, poise: 8, qa: 5 },
+      ],
+    },
+    { id: "Ben", sheets: [{ talent: 10, poise: 10, qa: 5 }] },
+    { id: "Cy", sheets: [] },
+  ]);
+
+  expect(result.map((r) => r.id)).toEqual(["Ben", "Ana"]);
 });
