@@ -46,9 +46,5 @@ export function rankContestants(
 
   ranked.sort((a, b) => b.score - a.score);
 
-  for (let i = 0; i < ranked.length; i++) {
-    ranked[i].rank = i + 1;
-  }
-
-  return ranked;
+  return ranked.map((item, index) => ({ ...item, rank: index + 1 }));
 }
