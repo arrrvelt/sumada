@@ -1,0 +1,13 @@
+name: Tests # the name shown on GitHub
+on: [push, pull_request] # when to run: every push and pull request
+jobs:
+  test:
+    runs-on: ubuntu-latest # a fresh Linux machine from GitHub
+    steps:
+      - uses: actions/checkout@v4 # download your code
+      - uses: actions/setup-node@v4 # install Node.js
+        with:
+          node-version: 22 # same version as your PC
+          cache: npm # reuse downloads between runs (faster)
+      - run: npm ci # install exact versions from package-lock.json
+      - run: npm test # run your 6 tests
