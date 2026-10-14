@@ -46,3 +46,22 @@ for all
 to authenticated
 using (owner_id = auth.uid())
 with check (owner_id = auth.uid());
+
+create policy "Organizers manage criteria of their events"
+on criteria
+for all
+to authenticated
+using (
+  exists (
+    select 1 from events
+    where events.id = criteria.event_id
+      and events.owner_id = auth.uid()
+  )
+)
+with check ( 
+  exists (
+    select 1 from events
+    where events.id = criteria.event_id
+      and events.owner_id = auth.uid()
+  )
+);
