@@ -36,3 +36,13 @@ create table scores (
   score numeric not null,
   unique (judge_id, contestant_id, criterion_id)
 );
+
+alter table events
+  add column owner_id uuid not null default auth.uid() references auth.users(id);
+
+create policy "Organizers manage their own events"
+on events
+for all
+to authenticated
+using (owner_id = auth.uid())
+with check (owner_id = auth.uid());
