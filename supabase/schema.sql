@@ -128,3 +128,26 @@ with check (
 alter table judges
   add column join_code text unique not null,
   add column user_id uuid references auth.users(id);
+
+create function claim_judge(code text)
+returns judges
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  claimed judges;
+begin
+  update judges
+  set user_id = auth.uid()
+  where join_code = code
+    and user_id is null
+  returning * into claimed;
+
+  if not found then
+    raise exception 'Invalid or already used code';
+  end if;
+
+  return claimed;
+end;
+$$;
