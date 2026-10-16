@@ -103,3 +103,24 @@ with check (
       and events.owner_id = auth.uid()
   )
 );
+
+create policy "Organizers manage scores of their events"
+on scores
+for all
+to authenticated
+using (
+  exists (
+    select 1 from contestants
+    join events on events.id = contestants.event_id
+    where contestants.id = scores.contestant_id
+      and events.owner_id = auth.uid()
+  )
+)
+with check (
+  exists (
+    select 1 from contestants
+    join events on events.id = contestants.event_id
+    where contestants.id = scores.contestant_id
+      and events.owner_id = auth.uid()
+  )
+);
