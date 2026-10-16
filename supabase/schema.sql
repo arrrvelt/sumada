@@ -151,3 +151,59 @@ begin
   return claimed;
 end;
 $$;
+
+create policy "Judges read contestants of their event"
+on contestants
+for select
+to authenticated
+using (
+  exists (
+    select 1 from judges
+    where judges.event_id = contestants.event_id
+      and judges.user_id = auth.uid()
+  )
+);
+
+create policy "Judges read their own judge row"
+on judges
+for select
+to authenticated
+using (user_id = auth.uid());
+
+create policy "Judges read the criteria of the event they judge"
+on criteria
+for select
+to authenticated
+using (
+  exists (
+    select 1 from judges
+    where judges.event_id = criteria.event_id
+      and judges.user_id = auth.uid()
+  )
+);
+
+create policy "Judges manage their own scores"
+on scores
+for all
+to authenticated
+using (
+  exists (
+    select 1 from judges
+    where judges.id = scores.judge_id
+      and judges.user_id = auth.uid()
+  )
+)
+with check (
+  exists (
+    select 1 from judges
+    where judges.id = scores.judge_id
+      and judges.user_id = auth.uid()
+  )
+);
+
+create policy "Anonymous users cannot create events"
+on events
+as restrictive
+for insert
+to authenticated
+with check ((auth.jwt() ->> 'is_anonymous')::boolean is false);
