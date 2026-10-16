@@ -65,3 +65,41 @@ with check (
       and events.owner_id = auth.uid()
   )
 );
+
+create policy "Organizers manage contestants of their events"
+on contestants
+for all
+to authenticated
+using (
+  exists (
+    select 1 from events
+    where events.id = contestants.event_id
+      and events.owner_id = auth.uid()
+  )
+)
+with check (
+  exists (
+    select 1 from events
+    where events.id = contestants.event_id
+      and events.owner_id = auth.uid()
+  )
+);
+
+create policy "Organizers manage judges of their events"
+on judges
+for all
+to authenticated
+using (
+  exists (
+    select 1 from events
+    where events.id = judges.event_id
+      and events.owner_id = auth.uid()
+  )
+)
+with check (
+  exists (
+    select 1 from events
+    where events.id = judges.event_id
+      and events.owner_id = auth.uid()
+  )
+);
