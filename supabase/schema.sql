@@ -124,3 +124,7 @@ with check (
       and events.owner_id = auth.uid()
   )
 );
+
+alter table judges
+  add column join_code text unique not null,
+  add column user_id uuid references auth.users(id);
