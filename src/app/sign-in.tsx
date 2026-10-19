@@ -11,7 +11,10 @@ export default function SignInScreen() {
   const [password, setPassword] = useState("");
 
   async function signIn() {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
     if (error) {
       Alert.alert("Sign in failed", error.message);
     } else {
@@ -27,7 +30,7 @@ export default function SignInScreen() {
       Alert.alert("Signed up successfully!");
     }
   }
-  
+
   return (
     <SafeAreaView style={styles.container}>
       <ThemedText type="title">Sumada</ThemedText>
@@ -54,5 +57,11 @@ export default function SignInScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", padding: 24, gap: 12 },
-  input: { borderWidth: 1, borderColor: "#888", borderRadius: 8, padding: 12, color: "#888" },
-})
+  input: {
+    borderWidth: 1,
+    borderColor: "#888",
+    borderRadius: 8,
+    padding: 12,
+    color: "#888",
+  },
+});
