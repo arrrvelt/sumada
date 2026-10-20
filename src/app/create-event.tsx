@@ -25,7 +25,7 @@ export default function CreateEventScreen() {
       Alert.alert("Could not create event", error.message);
       return;
     }
-    router.dismiss();
+    router.back();
   }
 
   return (

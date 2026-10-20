@@ -11,10 +11,7 @@ export default function EventsScreen() {
       style={{ flex: 1, justifyContent: "center", padding: 24, gap: 12 }}
     >
       <ThemedText type="title">Your events</ThemedText>
-      <Button
-        title="New event"
-        onPress={() => router.navigate("/create-event")}
-      />
+      <Button title="New event" onPress={() => router.push("/create-event")} />
       <Button title="Sign out" onPress={() => supabase.auth.signOut()} />
     </SafeAreaView>
   );
