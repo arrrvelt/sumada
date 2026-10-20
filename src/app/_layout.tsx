@@ -13,8 +13,19 @@ import { supabase } from "@/lib/supabase";
 
 SplashScreen.preventAutoHideAsync();
 
-export default function TabLayout() {
+export default function RootLayout() {
   const colorScheme = useColorScheme();
+  return (
+    <SQLiteProvider databaseName="sumada.db" onInit={initLocalDb}>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <AnimatedSplashOverlay />
+        <RootNavigator />
+      </ThemeProvider>
+    </SQLiteProvider>
+  );
+}
+
+function RootNavigator() {
   const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
@@ -31,18 +42,13 @@ export default function TabLayout() {
   }, []);
 
   return (
-    <SQLiteProvider databaseName="sumada.db" onInit={initLocalDb}>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <AnimatedSplashOverlay />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Protected guard={!!session}>
-            <Stack.Screen name="(app)" />
-          </Stack.Protected>
-          <Stack.Protected guard={!session}>
-            <Stack.Screen name="sign-in" />
-          </Stack.Protected>
-        </Stack>
-      </ThemeProvider>
-    </SQLiteProvider>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Protected guard={!!session}>
+        <Stack.Screen name="(app)" />
+      </Stack.Protected>
+      <Stack.Protected guard={!session}>
+        <Stack.Screen name="sign-in" />
+      </Stack.Protected>
+    </Stack>
   );
 }
