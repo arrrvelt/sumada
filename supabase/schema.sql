@@ -8,6 +8,11 @@ create table events (
   created_at timestamptz not null default now()
 );
 
+grant select, insert, update, delete on public.events to authenticated;
+grant select, insert, update, delete on public.events to service_role;
+
+alter table public.events enable row level security;
+
 create table criteria (
   id uuid primary key default gen_random_uuid(),
   event_id uuid not null references events(id) on delete cascade,
@@ -16,17 +21,32 @@ create table criteria (
   max numeric not null
 );
 
+grant select, insert, update, delete on public.criteria to authenticated;
+grant select, insert, update, delete on public.criteria to service_role;
+
+alter table public.criteria enable row level security;
+
 create table contestants (
   id uuid primary key default gen_random_uuid(),
   event_id uuid not null references events(id) on delete cascade,
   name text not null
 );
 
+grant select, insert, update, delete on public.contestants to authenticated;
+grant select, insert, update, delete on public.contestants to service_role;
+
+alter table public.contestants enable row level security;
+
 create table judges (
   id uuid primary key default gen_random_uuid(),
   event_id uuid not null references events(id) on delete cascade,
   name text not null
 );
+
+grant select, insert, update, delete on public.judges to authenticated;
+grant select, insert, update, delete on public.judges to service_role;
+
+alter table public.judges enable row level security;
 
 create table scores (
   id uuid primary key default gen_random_uuid(),
@@ -36,6 +56,11 @@ create table scores (
   score numeric not null,
   unique (judge_id, contestant_id, criterion_id)
 );
+
+grant select, insert, update, delete on public.scores to authenticated;
+grant select, insert, update, delete on public.scores to service_role;
+
+alter table public.scores enable row level security;
 
 alter table events
   add column owner_id uuid not null default auth.uid() references auth.users(id);
