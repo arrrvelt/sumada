@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
-import { Alert, Button, FlatList, StyleSheet, View } from "react-native";
+import { Alert, Button, FlatList, Pressable, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
@@ -39,10 +39,15 @@ export default function EventsScreen() {
         data={events}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.row}>
+          <Pressable
+            style={styles.row}
+            onPress={() =>
+              router.push({ pathname: "/event/[id]", params: { id: item.id } })
+            }
+          >
             <ThemedText type="subtitle">{item.name}</ThemedText>
             <ThemedText type="small">Room code: {item.room_code}</ThemedText>
-          </View>
+          </Pressable>
         )}
         ListEmptyComponent={
           <ThemedText>No events yet. Tap New event.</ThemedText>

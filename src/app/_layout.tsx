@@ -49,6 +49,10 @@ function RootNavigator() {
           name="create-event"
           options={{ headerShown: true, title: "New event" }}
         />
+        <Stack.Screen
+          name="event/[id]"
+          options={{ headerShown: true, title: "Event" }}
+        />
       </Stack.Protected>
       <Stack.Protected guard={!session}>
         <Stack.Screen name="sign-in" />
