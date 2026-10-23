@@ -6,6 +6,7 @@ import { ThemedText } from "@/components/themed-text";
 import { supabase } from "@/lib/supabase";
 
 type ContestantRow = { id: string; name: string };
+type CriterionRow = { id: string; name: string; weight: number; max: number };
 
 export default function EventScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -13,6 +14,15 @@ export default function EventScreen() {
   const [roomCode, setRoomCode] = useState("");
   const [contestants, setContestants] = useState<ContestantRow[]>([]);
   const [newContestant, setNewContestant] = useState("");
+  const [criteria, setCriteria] = useState<CriterionRow[]>([]);
+  const [newCriterion, setNewCriterion] = useState("");
+  const [newWeight, setNewWeight] = useState("");
+  const [newMax, setNewMax] = useState("");
+
+  let totalWeight = 0;
+  for (const c of criteria) {
+    totalWeight += c.weight;
+  }
 
   async function loadEvent() {
     const { data, error } = await supabase
@@ -53,10 +63,62 @@ export default function EventScreen() {
     loadContestants();
   }
 
+  async function loadCriteria() {
+    const { data, error } = await supabase
+      .from("criteria")
+      .select("id, name, weight, max")
+      .eq("event_id", id);
+    if (error) {
+      Alert.alert("Could not load criteria", error.message);
+      return;
+    }
+    setCriteria(data ?? []);
+  }
+
+  async function addCriterion() {
+    const weight = Number(newWeight);
+    const max = Number(newMax);
+
+    if (
+      newCriterion.trim() === "" ||
+      Number.isNaN(weight) ||
+      Number.isNaN(max) ||
+      weight <= 0 ||
+      max <= 0
+    ) {
+      Alert.alert(
+        "Check the criterion",
+        "Give it a name, and a weight and max above 0.",
+      );
+      return;
+    }
+
+    if (totalWeight + weight > 100) {
+      Alert.alert("Too much weight", `Only ${100 - totalWeight} left`);
+      return;
+    }
+
+    const { error } = await supabase.from("criteria").insert({
+      event_id: id,
+      name: newCriterion.trim(),
+      weight: newWeight.trim(),
+      max: newMax.trim(),
+    });
+    if (error) {
+      Alert.alert("Could not add criterion", error.message);
+      return;
+    }
+    setNewCriterion("");
+    setNewWeight("");
+    setNewMax("");
+    loadCriteria();
+  }
+
   useFocusEffect(
     useCallback(() => {
       loadEvent();
       loadContestants();
+      loadCriteria();
     }, [id]),
   );
 
@@ -64,6 +126,37 @@ export default function EventScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <Stack.Screen options={{ title: eventName }} />
       <ThemedText type="small">Room Code: {roomCode}</ThemedText>
+      <ThemedText type="subtitle">Criteria</ThemedText>
+      {criteria.map((c) => (
+        <ThemedText key={c.id}>
+          {c.name}: {c.weight}% (out of {c.max})
+        </ThemedText>
+      ))}
+      <ThemedText type="small">
+        Total weight: {totalWeight}%
+        {totalWeight === 100 ? "✓" : "(must reach 100%)"}
+      </ThemedText>
+      <TextInput
+        style={styles.input}
+        placeholder="Criterion name (e.g. Talent)"
+        value={newCriterion}
+        onChangeText={setNewCriterion}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Weight % (e.g. 40)"
+        keyboardType="numeric"
+        value={newWeight}
+        onChangeText={setNewWeight}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Max score (e.g. 10)"
+        keyboardType="numeric"
+        value={newMax}
+        onChangeText={setNewMax}
+      />
+      <Button title="Add criterion" onPress={addCriterion} />
       {contestants.map((c, index) => (
         <ThemedText key={c.id}>
           {index + 1}. {c.name}
