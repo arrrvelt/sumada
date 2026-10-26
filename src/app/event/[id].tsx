@@ -207,12 +207,12 @@ export default function EventScreen() {
         onChangeText={setNewMax}
       />
       <Button title="Add criterion" onPress={addCriterion} />
+      <ThemedText type="subtitle">Contestants</ThemedText>
       {contestants.map((c, index) => (
         <ThemedText key={c.id}>
           {index + 1}. {c.name}
         </ThemedText>
       ))}
-      <ThemedText type="subtitle">Contestants</ThemedText>
       <TextInput
         style={styles.input}
         placeholder="Contestant name"
