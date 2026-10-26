@@ -212,6 +212,7 @@ export default function EventScreen() {
           {index + 1}. {c.name}
         </ThemedText>
       ))}
+      <ThemedText type="subtitle">Contestants</ThemedText>
       <TextInput
         style={styles.input}
         placeholder="Contestant name"
