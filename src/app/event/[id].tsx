@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import { Alert, Button, ScrollView, StyleSheet, TextInput } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
+import { generateRoomCode } from "@/lib/room-code";
 import { supabase } from "@/lib/supabase";
 
 type ContestantRow = { id: string; name: string };
@@ -134,11 +135,40 @@ export default function EventScreen() {
     setJudges(data ?? []);
   }
 
+  async function addJudge() {
+    if (newJudge.trim() === "") return;
+
+    for (let attempt = 1; attempt <= 5; attempt++) {
+      const { error } = await supabase.from("judges").insert({
+        event_id: id,
+        name: newJudge.trim(),
+        join_code: generateRoomCode(),
+      });
+
+      if (!error) {
+        setNewJudge("");
+        loadJudges();
+        return;
+      }
+
+      if (error.code !== "23505") {
+        Alert.alert("Could not add judge", error.message);
+        return;
+      }
+    }
+
+    Alert.alert(
+      "Could not add judge",
+      "Couldn't find a free code. Please try again.",
+    );
+  }
+
   useFocusEffect(
     useCallback(() => {
       loadEvent();
       loadContestants();
       loadCriteria();
+      loadJudges();
     }, [id]),
   );
 
@@ -189,6 +219,19 @@ export default function EventScreen() {
         onChangeText={setNewContestant}
       />
       <Button title="Add contestant" onPress={addContestant} />
+      <ThemedText type="subtitle">Judges</ThemedText>
+      {judges.map((j) => (
+        <ThemedText key={j.id} selectable>
+          {j.name}: {j.join_code} {j.user_id ? "✓ joined" : "(not joined yet)"}
+        </ThemedText>
+      ))}
+      <TextInput
+        style={styles.input}
+        placeholder="Judge name"
+        value={newJudge}
+        onChangeText={setNewJudge}
+      />
+      <Button title="Add judge" onPress={addJudge} />
     </ScrollView>
   );
 }
