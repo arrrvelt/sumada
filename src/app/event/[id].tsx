@@ -7,6 +7,12 @@ import { supabase } from "@/lib/supabase";
 
 type ContestantRow = { id: string; name: string };
 type CriterionRow = { id: string; name: string; weight: number; max: number };
+type JudgeRow = {
+  id: string;
+  name: string;
+  join_code: string;
+  user_id: string | null;
+};
 
 export default function EventScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -18,6 +24,8 @@ export default function EventScreen() {
   const [newCriterion, setNewCriterion] = useState("");
   const [newWeight, setNewWeight] = useState("");
   const [newMax, setNewMax] = useState("");
+  const [judges, setJudges] = useState<JudgeRow[]>([]);
+  const [newJudge, setNewJudge] = useState("");
 
   let totalWeight = 0;
   for (const c of criteria) {
@@ -112,6 +120,18 @@ export default function EventScreen() {
     setNewWeight("");
     setNewMax("");
     loadCriteria();
+  }
+
+  async function loadJudges() {
+    const { data, error } = await supabase
+      .from("judges")
+      .select("id, name, join_code, user_id")
+      .eq("event_id", id);
+    if (error) {
+      Alert.alert("Could not load judges", error.message);
+      return;
+    }
+    setJudges(data ?? []);
   }
 
   useFocusEffect(
