@@ -41,9 +41,12 @@ function RootNavigator() {
     return () => data.subscription.unsubscribe();
   }, []);
 
+  const isJudge = session?.user.is_anonymous === true;
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={!!session}>
+      {/* organizers: signed in AND not anonymous */}
+      <Stack.Protected guard={!!session && !isJudge}>
         <Stack.Screen name="(app)" />
         <Stack.Screen
           name="create-event"
@@ -54,6 +57,12 @@ function RootNavigator() {
           options={{ headerShown: true, title: "Event" }}
         />
       </Stack.Protected>
+
+      {/* judges */}
+      <Stack.Protected guard={isJudge}>
+        <Stack.Screen name="judge" />
+      </Stack.Protected>
+
       <Stack.Protected guard={!session}>
         <Stack.Screen name="sign-in" />
       </Stack.Protected>

@@ -232,3 +232,37 @@ as restrictive
 for insert
 to authenticated
 with check ((auth.jwt() ->> 'is_anonymous')::boolean is false);
+
+create policy "Judges read the event they judge"
+on events
+for select
+to authenticated
+using (
+  exists (
+    select 1 from judges
+    where judges.event_id = events.id
+      and judges.user_id = auth.uid()
+  )
+);
+
+drop policy "Judges read the event they judge" on events;
+
+create function is_judge_of_event(eid uuid)
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select exists (
+    select 1 from judges
+    where judges.event_id = eid
+      and judges.user_id = auth.uid()
+  );
+$$;
+
+create policy "Judges read the event they judge"
+on events
+for select
+to authenticated
+using (is_judge_of_event(id));

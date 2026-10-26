@@ -31,6 +31,13 @@ export default function SignInScreen() {
     }
   }
 
+  async function joinAsJudge() {
+    const { error } = await supabase.auth.signInAnonymously();
+    if (error) {
+      Alert.alert("Could not start judging", error.message);
+    }
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <ThemedText type="title">Sumada</ThemedText>
@@ -51,6 +58,8 @@ export default function SignInScreen() {
       />
       <Button title="Sign in" onPress={signIn} />
       <Button title="Create account" onPress={signUp} />
+      <ThemedText type="small">Judging an event?</ThemedText>
+      <Button title="I'm a judge" onPress={joinAsJudge} />
     </SafeAreaView>
   );
 }
