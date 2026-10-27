@@ -266,3 +266,5 @@ on events
 for select
 to authenticated
 using (is_judge_of_event(id));
+
+drop policy "Judges manage their own scores" on scores;
