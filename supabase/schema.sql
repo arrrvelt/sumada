@@ -268,3 +268,27 @@ to authenticated
 using (is_judge_of_event(id));
 
 drop policy "Judges manage their own scores" on scores;
+
+create policy "Judges manage their own scores"
+on scores
+for all
+to authenticated
+using (
+  exists (
+    select 1 from judges
+    where judges.id = scores.judge_id
+      and judges.user_id = auth.uid()
+  )
+)
+with check (
+  exists (
+    select 1
+    from judges j
+    join contestants c on c.event_id = j.event_id
+    join criteria cr on cr.event_id = j.event_id
+    where j.id = scores.judge_id
+      and j.user_id = auth.uid()
+      and c.id = scores.contestant_id
+      and cr.id = scores.criterion_id
+  )
+);
